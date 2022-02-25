@@ -71,15 +71,8 @@ func Run(time float64) {
 	for _, p := range lijst {
 		norm(p.m)
 	}
-	write(averagemoments(Universe.lijst), false)
-	//averages is not weighted with volume, averagemoments is
-	//write(averages(Universe.lijst))
-	previousdemagcalc := T - demagtime
-	for j := T; T+1e-18 <= (j + time); {
-		if (demagevery == true) && (T-previousdemagcalc >= demagtime) {
-			calculatedemag()
-			previousdemagcalc = T
-		}
+
+	for j := T.value; T.value < j+time; {
 		if Demag {
 			calculatedemag()
 		}
@@ -92,24 +85,18 @@ func Run(time float64) {
 			}
 		case "dopri":
 			{
-				if T+Dt > (j+time)+1e-20 && Adaptivestep {
-					//undobadstep(Universe.lijst)
-					Dt = j + time - T
-					if Dt < Mindt {
-						Dt = Mindt
-					}
-					//fmt.Println(Dt)
-				}
-				dopristep(Universe.lijst)
-				T += Dt
-				if Adaptivestep {
-					if maxtauwitht > Errortolerance {
-						undobadstep(Universe.lijst)
-						if BrownianRotation {
-							undobadstep_u_anis(Universe.lijst)
-						}
-						if Dt == Mindt {
-							log.Fatal("mindt is too small for your specified error tolerance")
+				dopristep()
+				calculateheat()
+				solver.undo = false
+				T.value += Dt.value
+
+				if Adaptivestep && T.value < j+time {
+					if totalErr > Errortolerance {
+						undobadstep()
+						solver.undo = true
+
+						if Dt.value == MinDt.value {
+							log.Fatal("Mindt is too small for your specified error tolerance")
 						}
 					}
 
@@ -135,14 +122,8 @@ func Run(time float64) {
 			}
 		}
 
-		//	plotswitchtime()//EXTRA
-		if Jumpnoise {
-			checkallswitch(Universe.lijst)
-		}
-		//fmt.Println(Dt)
-		//write(averages(Universe.lijst))
-		write(averagemoments(Universe.lijst), false)
-
+		//averages is not weighted with volume, averagemoments is
+		write(averagemoments(), false)
 	}
 }
 
@@ -177,13 +158,10 @@ func eulerstep() {
 //#########################################################################
 //perform a timestep using dormand-prince
 
-// Gebruik maken van de FSAL (enkel bij niet-brown noise!!!)
-
-func dopristep(Lijst []*particle) {
-	Nsteps++
-	var k1, k2, k3, k4, k5, k6, k7 vector
-	for _, p := range Lijst {
-
+//include FSAL but only at zero temperature
+func dopristep() {
+	//preparations
+	for _, p := range lijst {
 		p.tempm = p.m
 		p.tempu = p.u
 

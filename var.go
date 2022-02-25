@@ -88,29 +88,11 @@ var (
 	MagDynamics           bool = true
 	viscositycalled       bool = false
 	//noMagDyn	    bool = false //set this to true to skip calculations of magnetisation dynamics
-	Condition_1    bool    = false
-	Condition_2    bool    = false
-	relax          bool    = false
-	Test           bool    = false
-	Counter        int     = 0
-	Max_u_anis_x   float64 = 0.
-	Max_u_anis_z   float64 = 0.
-	Min_u_anis_x   float64 = 1.
-	Min_u_anis_z   float64 = 1.
-	Max_u_anis_x_2 float64 = 0.
-	Max_u_anis_z_2 float64 = 0.
-	Min_u_anis_x_2 float64 = 1.
-	Min_u_anis_z_2 float64 = 1.
-	Trigger        bool    = false
-	Freq           float64 = 0.0
-	Print1         bool    = false
-	Print0         bool    = false
-	Nsteps         int     = 0
-	relax          bool    = false
-	Test           bool    = false
-	Counter        int     = 0
-	Trigger        bool    = false
-	Freq           float64 = 0.0
+	relax   bool    = false
+	Test    bool    = false
+	Counter int     = 0
+	Trigger bool    = false
+	Freq    float64 = 0.0
 
 	//SG variables,functions..
 	Tablename      string = "table"

@@ -71,7 +71,7 @@ func main() {
 	}
 
 	//Tablename = fmt.Sprintf("%0.FMNPs_of_radius%.0f_@%.3fmm", 2*float64(MNPs)+1, r*1e9, center*1e3)
-	Tablename = "2Particles1.5_r10"
+	Tablename = "test"
 	Output(1.6e-7)
 	Run(Runtime)
 }
