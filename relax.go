@@ -1,58 +1,59 @@
 package vinamax
 
 import (
-	//"fmt"
+	"fmt"
 	"log"
 	"math"
 )
 
 func Relax() {
 	backuptol := Errortolerance
-	backuptime := T
-	backupdt := Dt
+	backuptime := T.value
+	backupdt := Dt.value
+	backupBrownianRotation := BrownianRotation
+	BrownianRotation = false
 
-	gammaoveralpha = gamma0 / (1. + (Alpha * Alpha))
 	relax = true
-	if Demag {
-		calculatedemag()
+	//minimum 5 tiny steps
+	Dt.value = 1e-17
+	for i := 0; i < 5; i++ {
+		dopristep()
 	}
-	rk23step(Universe.lijst)
-	Errortolerance = 1e-1
-	for maxtauwitht > 5e-8 {
 
-		if Demag {
-			calculatedemag()
-		}
-		rk23step(Universe.lijst)
+	Dt.value = 1e-10
+	dopristep()
+	Errortolerance = 1e-3
+	for totalErr > 1e-7 || magTorque > 1e-12 {
+		fmt.Println(totalErr, magTorque)
+		dopristep()
 
-		if maxtauwitht > Errortolerance {
-			undobadstep(Universe.lijst)
-			if BrownianRotation {
-				undobadstep_u_anis(Universe.lijst)
-			}
-			if Dt == Mindt {
-				log.Fatal("mindt is too small for your specified error tolerance")
+		if totalErr > Errortolerance {
+			fmt.Println("undo?")
+			undobadstep()
+			if Dt.value == MinDt.value {
+				log.Fatal("Mindt is too small for your specified error tolerance")
 			}
 		}
 
-		Dt = 0.95 * Dt * math.Pow(Errortolerance/maxtauwitht, (1./float64(order)))
+		Dt.value = math.Min(Dt.value*0.99, 0.95*Dt.value*math.Pow(Errortolerance/totalErr, (1./float64(solver.order))))
 
-		if Dt < Mindt {
-			Dt = Mindt
+		if Dt.value < MinDt.value {
+			Dt.value = MinDt.value
 		}
-		if Dt > Maxdt {
-			Dt = Maxdt
+		if Dt.value > MaxDt.value {
+			Dt.value = MaxDt.value
 		}
-		//fmt.Println(maxtauwitht,"\t",Errortolerance)
-		if maxtauwitht < Errortolerance/4 {
+		if totalErr < Errortolerance/4. {
 			Errortolerance /= 1.4142
+			Errortolerance = math.Max(1e-10, Errortolerance)
 		}
-		T = backuptime
+		T.value = backuptime
 	}
 
 	Errortolerance = backuptol
-	T = backuptime
-	Dt = backupdt
+	T.value = backuptime
+	Dt.value = backupdt
 	relax = false
+	BrownianRotation = backupBrownianRotation
 
 }

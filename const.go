@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -40,8 +41,16 @@ contact: jonathan.leliaert@gmail.com`)
 	//Initialise the outputdir
 
 	fname := os.Args[0]
-	f2name := strings.Split(fname, "/")
-	outdir = fmt.Sprint(f2name[len(f2name)-1], ".out")
+
+	var f2name []string
+	if runtime.GOOS == "windows" {
+		f2name = strings.Split(fname, "\\")
+		outdir = fmt.Sprint(f2name[len(f2name)-1], ".out")
+		outdir = strings.Replace(outdir, ".exe", "", -1)
+	} else {
+		f2name = strings.Split(fname, "/")
+		outdir = fmt.Sprint(f2name[len(f2name)-1], ".out")
+	}
 	os.Mkdir(outdir, 0775)
 	f, err3 := os.Open(outdir)
 	files, _ := f.Readdir(1)
@@ -49,7 +58,7 @@ contact: jonathan.leliaert@gmail.com`)
 	if len(files) != 0 {
 		filepath.Walk(outdir, func(path string, i os.FileInfo, err error) error {
 			if path != outdir {
-				os.RemoveAll(path)
+				//os.RemoveAll(path)
 			}
 			return nil
 		})

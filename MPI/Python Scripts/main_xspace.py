@@ -13,6 +13,7 @@ S_directory = 'C:\\Users\\SamuelGGB\\go\\src\\vinamax\\MPI\\results\\'
 U_directory = 'C:\\Users\\SamuelGGB\\go\\src\\vinamax\\MPI\\1D.out\\'
 S_file = S_directory+'S.txt'
 U_file = U_directory+'articles1.5_r10.txt'
+
 #U_file = U_directory+'k30\\101MNPs_of_radius30_@x0.000mm.txt'
 
 N = 2000
