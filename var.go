@@ -44,6 +44,8 @@ var (
 	B_ext       func(t float64) (float64, float64, float64)          // External applied field in T
 	B_ext_space func(t, x, y, z float64) (float64, float64, float64) // External applied field in T
 
+	
+
 	Dt                    = scalarvariable{"dt", "s", "timestep", false, 1e-15}
 	MinDt                 = scalarvariable{"minDt", "s", "minimum allowed timestep", false, 1e-20}
 	MaxDt                 = scalarvariable{"MaxDt", "s", "maximum allowed timestep", false, 1}
@@ -93,6 +95,19 @@ var (
 	Counter int     = 0
 	Trigger bool    = false
 	Freq    float64 = 0.0
+	
+	//SG variables,functions..
+	Tablename string = "table"
+	Coil_Locations []float64
+	Runtime float64 = 1e-9
+	X_scan float64 = 1e-3
+	Coil_Average bool = false
+	G float64 = 5
+	A float64 = 12e-3
+	
+
+	
+	
 )
 
 //initialised B_ext functions

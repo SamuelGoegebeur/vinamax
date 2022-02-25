@@ -3,6 +3,7 @@ package vinamax
 import (
 	"fmt"
 	"log"
+	"math"
 )
 
 //adds a quantity to the output table
@@ -11,6 +12,11 @@ func Tableadd(a string) {
 	case "B_ext":
 		{
 			b := output_B_ext{}
+			outputList = append(outputList, &b)
+		}
+	case "B_ext_space":
+		{
+			b := output_B_ext_space{}
 			outputList = append(outputList, &b)
 		}
 	case "Dt":
@@ -59,7 +65,17 @@ func Tableadd(a string) {
 			b := output_Heat{}
 			outputList = append(outputList, &b)
 		}
+	case "Detectorsignal":
+		{
+			b := output_Signal_detector{}
+			outputList = append(outputList, &b)
+		}
+	case "FFP":
+		{
+			b := output_FFP{}
+			outputList = append(outputList, &b)
 
+		}
 	default:
 		{
 			log.Fatal(a, " is currently not addable to table")
@@ -78,6 +94,32 @@ func (o output_B_ext) header() string {
 func (o output_B_ext) value() string {
 	B_ext_x, B_ext_y, B_ext_z := B_ext(T.value)
 	return fmt.Sprintf("\t%v\t%v\t%v", B_ext_x, B_ext_y, B_ext_z)
+}
+
+//OutputQuantity B_ext_space
+type output_B_ext_space struct {
+}
+
+func (o output_B_ext_space) header() string {
+	l := [3]float64{-X_scan, 0., X_scan}
+	names := ""
+	for i := 0; i < 3; i++ {
+		names += fmt.Sprintf("\tB_ext_space_x_%v\tB_ext_space_y_%v\tB_ext_space_z_%v", l[i], l[i], l[i])
+	}
+
+	return names
+
+}
+
+func (o output_B_ext_space) value() string {
+	l := [3]float64{-X_scan, 0., X_scan}
+	values := ""
+	for i := 0; i < 3; i++ {
+		B_ext_space_x, B_ext_space_y, B_ext_space_z := B_ext_space(T.value, l[i], 0., 0.)
+		values += fmt.Sprintf("\t%v\t%v\t%v", B_ext_space_x, B_ext_space_y, B_ext_space_z)
+	}
+
+	return values
 }
 
 //OutputQuantity Dt
@@ -226,4 +268,55 @@ func (o output_Heat) value() string {
 		string += fmt.Sprintf("\t%v", i.heat)
 	}
 	return string
+}
+
+//OutputQuantity Signal in detector 6ch (SQUID 1)
+type output_Signal_detector struct {
+}
+
+func (o output_Signal_detector) header() string {
+	return "\tB_field_detector"
+}
+
+func (o output_Signal_detector) value() string {
+	B_detector := 0.
+	detectorcount := 0
+
+	//loop over detector
+	//for coil in Coil_location
+	x_coord := Coil_Locations[0]
+	y_coord := -7.5e-3
+	for i := 0; y_coord <= 7.5e-3; i++ {
+		z_coord := -7.5e-3
+		for j := 0; z_coord <= 7.5e-3; j++ {
+			//Bereken magnetic flux in detectorpoint: B_scalar
+			B_detectorpoint_x, B_detectorpoint_y, B_detectorpoint_z := B_ext_space(T.value, x_coord, y_coord, z_coord) //magnetic induction
+			//Flux_at_point(x_coord,y_coord,z_coord) flux vector at points
+			B_scalar := B_detectorpoint_x + 0*(B_detectorpoint_y+B_detectorpoint_z) //flux at points in direction detector
+
+			B_detector += B_scalar
+			detectorcount += 1
+
+			z_coord += 1.0e-3
+			z_coord = math.Round(z_coord*10000) / 10000
+		}
+		y_coord += 1.0e-3
+		y_coord = math.Round(y_coord*10000) / 10000
+	}
+	B_detector = B_detector / float64(detectorcount)
+	return fmt.Sprintf("\t%v", B_detector)
+}
+
+//OutputQuantity FFP
+type output_FFP struct {
+}
+
+func (o output_FFP) header() string {
+	return "\tFFP_x"
+}
+
+func (o output_FFP) value() string {
+	ffp :=  A/G*math.Cos(2*math.Pi*T.value*25e3)
+	return fmt.Sprintf("\t%v", ffp)
+
 }

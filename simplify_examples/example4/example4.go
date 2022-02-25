@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "github.com/JLeliaert/vinamax"
+	. "vinamax"
 	"math"
 	"math/rand"
 )

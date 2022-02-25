@@ -2,24 +2,24 @@ package main
 
 import (
 	"fmt"
-	. "github.com/JLeliaert/vinamax"
+	. "vinamax"
 )
 
 func main() {
-	kb := 1.3806488E-23
+	kb := 1.3806488e-23
 	Clear()
 	Rc.Set(6e-9)
 	Rh.Set(6e-9)
 	Msat.Set(400e3)
-	M.Set(0, 0, 1)
+	M.Set(0, 0, 1) //orientatie deeltjes in cube
 	Alpha.Set(1.)
 	Ku1.Set(1.e7)
 	U_anis.Set(0, 0, 1)
 	Dt.Set(1e-10)
 	MaxDt.Set(5e-9)
-	T.Set(0.)
+	T.Set(0.) //tijd
 	Viscosity.Set(1e-3)
-	Adaptivestep = true
+	Adaptivestep = true //zoekt zelf beste Dt
 	Temp.Set(300.)
 	BrownianRotation = true
 	Demag = false

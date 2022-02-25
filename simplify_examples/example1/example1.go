@@ -7,7 +7,7 @@
 package main
 
 import (
-	. "github.com/JLeliaert/vinamax"
+	. "vinamax"
 )
 
 func main() {

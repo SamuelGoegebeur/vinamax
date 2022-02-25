@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "github.com/JLeliaert/vinamax"
 	"math"
+	. "vinamax"
 )
 
 func main() {

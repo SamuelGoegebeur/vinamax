@@ -31,7 +31,8 @@ func Output(interval float64) {
 	if interval != 0 {
 		outputcalled = true
 		if Test == false {
-			f, err = os.Create(outdir + "/table.txt")
+
+			f, err = os.Create(outdir + "/" + Tablename + ".txt")
 			check(err)
 			//	defer f.Close()
 		}
@@ -69,7 +70,7 @@ func Writeintable(a string) {
 func Tablesave() {
 	if outputcalled == false {
 		outputcalled = true
-		f, err = os.Create(outdir + "/table.txt")
+		f, err = os.Create(outdir + "/" + Tablename + ".txt")
 		check(err)
 		writeheader()
 	}
@@ -140,17 +141,25 @@ func writeheader() {
 	header := fmt.Sprintf("#t\t<mx>\t<my>\t<mz>")
 	_, err = f.WriteString(header)
 	check(err)
+
 	for _, o := range outputList {
 		header := fmt.Sprintf(o.header())
 		_, err = f.WriteString(header)
 		check(err)
 	}
 
-	for i := range locations {
-
-		header = fmt.Sprintf("\t(B_x\tB_y\tB_z)@(%v,%v,%v)", locations[i][0], locations[i][1], locations[i][2])
+	if Coil_Average {
+		header = fmt.Sprintf("\tB_x@(%v,%v,%v)\tB_y@(%v,%v,%v)\tB_z@(%v,%v,%v)", Coil_Locations[0], 0., 0., Coil_Locations[0], 0., 0., Coil_Locations[0], 0., 0.)
 		_, err = f.WriteString(header)
 		check(err)
+	}
+	if !Coil_Average {
+		for i := range locations {
+			header = fmt.Sprintf("\tB_x@(%v,%v,%v)\tB_y@(%v,%v,%v)\tB_z@(%v,%v,%v)", locations[i][0], locations[i][1], locations[i][2], locations[i][0], locations[i][1], locations[i][2], locations[i][0], locations[i][1], locations[i][2])
+			_, err = f.WriteString(header)
+			check(err)
+		}
+
 	}
 
 	header = fmt.Sprintf("\n")
@@ -169,6 +178,19 @@ func Tableadd_b_at_location(x, y, z float64) {
 
 }
 
+func average_at_location() (float64, float64, float64) {
+	field_at_coil_x, field_at_coil_y, field_at_coil_z := 0., 0., 0.
+	j := 0.
+	for i := range locations {
+		field_at_coil_x += demag(locations[i][0], locations[i][1], locations[i][2])[0]
+		field_at_coil_y += demag(locations[i][0], locations[i][1], locations[i][2])[1]
+		field_at_coil_z += demag(locations[i][0], locations[i][1], locations[i][2])[2]
+		j += 1.0
+	}
+	//print(j)
+	return field_at_coil_x / j, field_at_coil_y / j, field_at_coil_z / j
+}
+
 func Give_mz() float64 {
 	return averagemoments()[2]
 }
@@ -185,12 +207,21 @@ func write(avg vector, forced bool) {
 			check(err)
 		}
 
-		for i := range locations {
-
-			string = fmt.Sprintf("\t%v\t%v\t%v", (demag(locations[i][0], locations[i][1], locations[i][2])[0]), (demag(locations[i][0], locations[i][1], locations[i][2])[1]), (demag(locations[i][0], locations[i][1], locations[i][2])[2]))
+		if Coil_Average {
+			loc_x, loc_y, loc_z := average_at_location()
+			string = fmt.Sprintf("\t%v\t%v\t%v", loc_x, loc_y, loc_z)
 			_, err = f.WriteString(string)
-			check(err)
+			check((err))
 		}
+
+		if Coil_Average == false {
+			for i := range locations {
+				string = fmt.Sprintf("\t%v\t%v\t%v", (demag(locations[i][0], locations[i][1], locations[i][2])[0]), (demag(locations[i][0], locations[i][1], locations[i][2])[1]), (demag(locations[i][0], locations[i][1], locations[i][2])[2]))
+				_, err = f.WriteString(string)
+				check(err)
+			}
+		}
+
 		if !forced {
 			_, err = f.WriteString("\n")
 			check(err)

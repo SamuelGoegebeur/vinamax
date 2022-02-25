@@ -8,7 +8,7 @@
 package main
 
 import (
-	. "github.com/JLeliaert/vinamax"
+	. "vinamax"
 )
 
 func main() {
@@ -30,6 +30,7 @@ func main() {
 	T.Set(0.)
 	Temp.Set(0.0)
 	Tableadd("B_ext")
+	Tableadd("U_anis")
 	Output(1e-10)
 	Save("geometry")
 	Run(100.e-9)

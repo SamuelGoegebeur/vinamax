@@ -58,7 +58,7 @@ contact: jonathan.leliaert@gmail.com`)
 	if len(files) != 0 {
 		filepath.Walk(outdir, func(path string, i os.FileInfo, err error) error {
 			if path != outdir {
-				os.RemoveAll(path)
+				//os.RemoveAll(path)
 			}
 			return nil
 		})
